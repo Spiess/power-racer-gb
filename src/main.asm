@@ -115,10 +115,12 @@ CopyTilemap:
 	ld a, 84
 	ld [hli], a ; y position
 	ld [hli], a ; x position
-	ld a, $02 ; Tile index
+	ld a, 0 ; Tile index
 	ld [hli], a
 	ld a, %00000000 ; Attributes / flags
 	ld [hl], a
+
+	call initialize_car
 
 	; Turn the LCD on
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_OBJON
@@ -131,11 +133,10 @@ CopyTilemap:
 	; Init object palette 0
 	ld [rOBP0], a
 
-	call initialize_effect_variables
-
 Done:
 	call wait_vblank
-	ld a, 5
+	call read_input
+	call update_car
 	call scroll_x
 	jp Done
 
