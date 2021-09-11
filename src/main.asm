@@ -49,7 +49,7 @@ CopyRoad:
 	ld a, $02
 	ld [hli], a
 	ld a, $60
-	cp a, l
+	cp l
 	jr nz, CopyRoad
 
 	; Copy window
@@ -58,13 +58,13 @@ CopyRoad:
 CopyWindow0:
 	ld [hli], a
 	inc a
-	cp a, _N_TILES + _LOGO_WIDTH
+	cp _N_TILES + _LOGO_WIDTH
 	jr nz, CopyWindow0
 	ld hl, _SCRN1 + $20
 CopyWindow1:
 	ld [hli], a
 	inc a
-	cp a, _N_TILES + _LOGO_WIDTH + _LOGO_WIDTH
+	cp _N_TILES + _LOGO_WIDTH + _LOGO_WIDTH
 	jr nz, CopyWindow1
 
 	ld hl, rWX
@@ -100,13 +100,12 @@ CopyWindow1:
 	; Init object palette 0
 	ld [rOBP0], a
 
-Done:
-	ld de, Logo - Tiles
-	call wait_vblank
+MainMenu:
+	call wait_new_vblank
 	call read_input
-	call update_car
+	; call update_car
 	call scroll_x
-	jp Done
+	jp MainMenu
 
 
 SECTION "Tile data", ROM0

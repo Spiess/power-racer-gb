@@ -11,8 +11,9 @@ wait_vblank::
 wait_fade::
 	ld b, 60
 
-.wait_loop:
+wait_new_vblank::
+	ld a, [rLY]
+	cp 0
+	jr nz, wait_new_vblank
 	call wait_vblank
-	dec b
-	jr nz, .wait_loop
 	ret
