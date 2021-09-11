@@ -58,13 +58,7 @@ update_car::
 	dec [hl]
 .slow_down_end:
 
-	; Update background (move only when speed counter overflows)
-	ld hl, CAR_SPEED_COUNTER
-	add [hl]
-	ld [hl], a
-	jr nc, .move_end
-	call scroll_x
-.move_end:
+	call move_car
 
     ret
 
@@ -142,6 +136,49 @@ update_sprite::
 	ld a, %01000000
 	ld [hl], a
 .update_sprite_end:
+	ret
+
+move_car::
+	; Update background (move only when speed counter overflows)
+	ld hl, CAR_SPEED_COUNTER
+	add [hl]
+	ld [hl], a
+	jr nc, .move_end
+	; Move Y
+	ld a, [CAR_ROTATION]
+	sub $20 ; Correct for starting angle
+	cp 95
+	ld hl, rSCY
+	jr c, .move_up
+	sub 128
+	cp 95
+	jr nc, .move_y_end
+	; Rotated downwards
+	inc [hl]
+	jr .move_y_end
+.move_up
+	; Rotated upwards
+	dec [hl]
+.move_y_end:
+
+	; Move X
+	ld a, [CAR_ROTATION]
+	sub $60 ; Correct for starting angle
+	cp 95
+	ld hl, rSCX
+	jr c, .move_left
+	sub 128
+	cp 95
+	jr nc, .move_x_end
+	; Rotated right
+	inc [hl]
+	jr .move_x_end
+.move_left
+	; Rotated right
+	dec [hl]
+.move_x_end:
+
+.move_end:
 	ret
 
 SECTION "Car Variables", WRAM0
