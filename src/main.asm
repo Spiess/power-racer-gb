@@ -44,65 +44,28 @@ CopyTilemap:
 	cp $00
 	jr nz, CopyTilemap
 
+	ld hl, _SCRN0 + $0100
+CopyRoad:
+	ld a, $02
+	ld [hli], a
+	ld a, $60
+	cp a, l
+	jr nz, CopyRoad
+
 	; Copy window
 	ld hl, _SCRN1
-	ld a, $17
+	ld a, _N_TILES
+CopyWindow0:
 	ld [hli], a
-	ld a, $18
+	inc a
+	cp a, _N_TILES + _LOGO_WIDTH
+	jr nz, CopyWindow0
+	ld hl, _SCRN1 + $20
+CopyWindow1:
 	ld [hli], a
-	ld a, $19
-	ld [hli], a
-	ld a, $1A
-	ld [hli], a
-	ld a, $1B
-	ld [hli], a
-	ld a, $1C
-	ld [hli], a
-	ld a, $1D
-	ld [hli], a
-	ld a, $1E
-	ld [hli], a
-	ld a, $1F
-	ld [hli], a
-	ld a, $20
-	ld [hli], a
-	ld a, $21
-	ld [hli], a
-	ld a, $22
-	ld [hli], a
-	ld a, $23
-	ld [hli], a
-	ld a, $24
-	ld [hl], a
-	ld hl, _SCRN1 + 32
-	ld a, $25
-	ld [hli], a
-	ld a, $26
-	ld [hli], a
-	ld a, $27
-	ld [hli], a
-	ld a, $28
-	ld [hli], a
-	ld a, $29
-	ld [hli], a
-	ld a, $2A
-	ld [hli], a
-	ld a, $2B
-	ld [hli], a
-	ld a, $2C
-	ld [hli], a
-	ld a, $2D
-	ld [hli], a
-	ld a, $2E
-	ld [hli], a
-	ld a, $2F
-	ld [hli], a
-	ld a, $30
-	ld [hli], a
-	ld a, $31
-	ld [hli], a
-	ld a, $32
-	ld [hl], a
+	inc a
+	cp a, _N_TILES + _LOGO_WIDTH + _LOGO_WIDTH
+	jr nz, CopyWindow1
 
 	ld hl, rWX
 	ld [hl], 55
@@ -122,6 +85,10 @@ CopyTilemap:
 
 	call initialize_car
 
+	; Scroll screen half a tile up
+	ld hl, rSCY
+	ld [hl], $04
+
 	; Turn the LCD on
 	ld a, LCDCF_ON | LCDCF_BGON | LCDCF_WINON | LCDCF_WIN9C00 | LCDCF_OBJON
 	ld [rLCDC], a
@@ -134,6 +101,7 @@ CopyTilemap:
 	ld [rOBP0], a
 
 Done:
+	ld de, Logo - Tiles
 	call wait_vblank
 	call read_input
 	call update_car
@@ -145,7 +113,11 @@ SECTION "Tile data", ROM0
 
 Tiles:
 	INCBIN "tiles/tiles.2bpp"
+Logo:
 	INCBIN "tiles/logo.2bpp"
 BGTilesEnd:
 	INCBIN "tiles/sprites.2bpp"
 TilesEnd:
+
+DEF _N_TILES EQU 13
+DEF _LOGO_WIDTH EQU 14
