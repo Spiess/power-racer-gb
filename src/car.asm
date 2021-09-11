@@ -4,6 +4,12 @@ INCLUDE "hardware.inc"
 
 initialize_car::
 	ld hl, CAR_ROTATION
+	ld a, $10 ; Start rotation in the middle of angle thresholds
+	ld [hl], a
+	ld hl, CAR_SPEED
+	ld a, $FF
+	ld [hl], a
+	ld hl, CAR_SPEED_COUNTER
 	ld a, 0
 	ld [hl], a
 	ret
@@ -34,7 +40,35 @@ update_car::
     dec [hl]
 .check_right_end:
 
-	; Update sprite
+	call update_sprite
+
+	; Check A down
+	ld hl, INPUTS
+	bit PADB_A, [hl]
+	ld hl, CAR_SPEED
+	ld a, [hl]
+	jr nz, .check_a_end
+	cp $FF
+	jr z, .slow_down_end
+	inc [hl]
+	jr .slow_down_end
+.check_a_end:
+	cp 0
+	jr z, .slow_down_end
+	dec [hl]
+.slow_down_end:
+
+	; Update background (move only when speed counter overflows)
+	ld hl, CAR_SPEED_COUNTER
+	add [hl]
+	ld [hl], a
+	jr nc, .move_end
+	call scroll_x
+.move_end:
+
+    ret
+
+update_sprite::
 	; Check if sprite needs updating
 	; This is the case if the top three bits of rotation have changed
 	ld hl, CAR_ROTATION_OLD
@@ -108,9 +142,10 @@ update_car::
 	ld a, %01000000
 	ld [hl], a
 .update_sprite_end:
-
-    ret
+	ret
 
 SECTION "Car Variables", WRAM0
 CAR_ROTATION:: DS 1
 CAR_ROTATION_OLD:: DS 1
+CAR_SPEED:: DS 1
+CAR_SPEED_COUNTER:: DS 1

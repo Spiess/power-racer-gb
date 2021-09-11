@@ -120,10 +120,13 @@ TransitionToGame:
 	jr nz, TransitionToGame
 	call wait_vblank
 	ld hl, rLCDC
-	res 5, [hl]
+	res 5, [hl] ; Turn off window
 	jr Game
 
 Game:
+	call wait_new_vblank
+	call read_input
+	call update_car
 	jr Game
 
 
