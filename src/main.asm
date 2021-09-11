@@ -103,9 +103,28 @@ CopyWindow1:
 MainMenu:
 	call wait_new_vblank
 	call read_input
-	; call update_car
+	; Check start down
+	ld hl, INPUTS
+	bit PADB_START, [hl]
+	jr z, TransitionToGame
 	call scroll_x
-	jp MainMenu
+	jr MainMenu
+
+TransitionToGame:
+	call wait_new_vblank
+	call scroll_x
+	ld hl, rWY
+	inc [hl]
+	ld a, 144
+	cp [hl]
+	jr nz, TransitionToGame
+	call wait_vblank
+	ld hl, rLCDC
+	res 5, [hl]
+	jr Game
+
+Game:
+	jr Game
 
 
 SECTION "Tile data", ROM0
