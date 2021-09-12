@@ -52,6 +52,17 @@ CopyRoad:
 	cp l
 	jr nz, CopyRoad
 
+	; Finish line
+	ld hl, _SCRN0 + $010f
+	ld bc, $0020
+	ld a, $03
+	ld [hl], a
+	add hl, bc
+	ld [hl], a
+	add hl, bc
+	ld [hl], a
+
+
 	; Copy window
 	ld hl, _SCRN1
 	ld a, _N_TILES
@@ -140,5 +151,5 @@ BGTilesEnd:
 	INCBIN "tiles/sprites.2bpp"
 TilesEnd:
 
-DEF _N_TILES EQU 13
+DEF _N_TILES EQU 14
 DEF _LOGO_WIDTH EQU 14

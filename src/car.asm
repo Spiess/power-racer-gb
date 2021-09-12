@@ -2,12 +2,14 @@ SECTION "Car", ROMX
 
 INCLUDE "hardware.inc"
 
+DEF _TOP_SPEED EQU $F0
+
 initialize_car::
 	ld hl, CAR_ROTATION
 	ld a, $10 ; Start rotation in the middle of angle thresholds
 	ld [hl], a
 	ld hl, CAR_SPEED
-	ld a, $FF
+	ld a, $80
 	ld [hl], a
 	ld hl, CAR_SPEED_COUNTER
 	ld a, 0
@@ -29,6 +31,7 @@ update_car::
     ; Rotate left
     ld hl, CAR_ROTATION
     inc [hl]
+	inc [hl]
 .check_left_end:
 
     ; Check right down
@@ -38,6 +41,7 @@ update_car::
     ; Rotate right
     ld hl, CAR_ROTATION
     dec [hl]
+	dec [hl]
 .check_right_end:
 
 	call update_sprite
@@ -48,7 +52,7 @@ update_car::
 	ld hl, CAR_SPEED
 	ld a, [hl]
 	jr nz, .check_a_end
-	cp $FF
+	cp _TOP_SPEED
 	jr z, .slow_down_end
 	inc [hl]
 	jr .slow_down_end
@@ -58,6 +62,8 @@ update_car::
 	dec [hl]
 .slow_down_end:
 
+	call move_car
+	ld a, [CAR_SPEED]
 	call move_car
 
     ret
@@ -140,6 +146,7 @@ update_sprite::
 
 move_car::
 	; Update background (move only when speed counter overflows)
+	; Requires a to contain current speed
 	ld hl, CAR_SPEED_COUNTER
 	add [hl]
 	ld [hl], a
